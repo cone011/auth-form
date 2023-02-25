@@ -7,6 +7,7 @@ app.set("view engine", "pug");
 app.set("views", "views");
 app.use(express.urlencoded({ extended: false }));
 
+app.get("/", async (req, res) => res.render("login"));
 app.get("/login", async (req, res) => res.render("login"));
 app.post("/login", async (req, res, next) => {
   try {
