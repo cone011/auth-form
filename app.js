@@ -1,26 +1,40 @@
 const express = require("express");
 const app = express();
-const User = require("./models/user");
-const { getAll, create } = require("./controllers/user");
+var session = require("express-session");
+const { engine } = require("express-handlebars");
+const routes = require("./routers/routes");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-app.set("view engine", "pug");
-app.set("views", "views");
-app.use(express.urlencoded({ extended: false }));
+mongoose.set("strictQuery", true);
+mongoose
+  .connect(process.env.MONGODB_URL)
+  .then((result) => {
+    console.log("ok");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-app.get("/", async (req, res) => res.render("login"));
-app.get("/login", async (req, res) => res.render("login"));
-app.post("/login", async (req, res, next) => {
-  try {
-    const user = await User.authenticate(req.body.email, req.body.password);
-    if (user) {
-      req.userId = user._id;
-      return res.redirect("/index");
-    } else {
-      res.redirect("/login");
-    }
-  } catch (e) {
-    return next(e);
-  }
+//views
+app.engine("hbs", engine({ extname: ".hbs" }));
+app.set("view engine", "hbs");
+app.set("views", "./views");
+
+app.use(
+  session({
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/", routes);
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, function () {
+  console.log(`Listening on port ${port}`);
 });
-
-app.listen(3000, () => console.log("Listening on port 3000!"));

@@ -1,10 +1,11 @@
-const moongose = require("../db/connection");
+const mongoose = require("mongoose");
 
-let schema = moongose.Schema({
+const userSchema = new mongoose.Schema({
+  name: String,
   email: String,
   password: String,
 });
 
-let User = moongose.model("User", schema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
